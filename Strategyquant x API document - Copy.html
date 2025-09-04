@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AI Trading Programming Guide (Vibe Coding)</title>
+<style>
+  /* --------- Dark Core --------- */
+  :root{
+    --bg:#0b0f14; --bg-2:#0f172a; --card:#111827; --ink:#eaeaea; --muted:#b0b0b0;
+    --stroke:#1f2937; --glow:#22d3ee; --glow-2:#7c3aed; --ok:#10b981; --bad:#ef4444;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    line-height:1.6;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 20% -10%, #0e1726 0%, transparent 60%),
+      radial-gradient(1200px 600px at 120% 10%, #0b1220 0%, transparent 60%),
+      var(--bg);
+    min-height:100vh;
+  }
+  .container{ max-width:1100px; margin:0 auto; padding:28px; }
+
+  /* --------- Header --------- */
+  .header{ text-align:center; color:var(--ink); margin-bottom:26px; padding:32px 0; }
+  .header h1{
+    font-size:2.6rem; letter-spacing:.3px; font-weight:800; margin-bottom:8px;
+    text-shadow:0 0 20px rgba(34,211,238,.2), 0 2px 30px rgba(124,58,237,.25);
+  }
+  .header p{ font-size:1.05rem; color:var(--muted); }
+
+  /* --------- Sections --------- */
+  .section{
+    background:var(--card);
+    border:1px solid var(--stroke);
+    border-radius:16px;
+    margin:18px 0 28px;
+    box-shadow:0 10px 30px rgba(0,0,0,.45);
+    overflow:hidden;
+    transition:transform .25s ease;
+  }
+  .section:hover{ transform: translateY(-3px); }
+  .section-header{
+    background:linear-gradient(45deg, #0ea5e9, var(--glow));
+    color:#06181c;
+    padding:16px 22px;
+    display:flex; align-items:center; justify-content:space-between; cursor:pointer;
+    font-weight:800;
+  }
+  .section-header h2{ font-size:1.2rem; }
+  .toggle-icon{ font-size:1.5rem; }
+
+  .section-content{ padding:24px; display:block; }
+  .sub{ color:#6ee7ff; font-weight:800; margin-top:8px; margin-bottom:10px; font-size:1.05rem; }
+  p{ margin:8px 0 10px; }
+
+  /* Cards / blocks */
+  .strategy-card{
+    background:var(--card); border:1px solid var(--stroke); border-radius:12px;
+    padding:16px; margin:12px 0;
+    box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  }
+  .interactive-demo{
+    background:var(--bg-2);
+    border:1px dashed #334155; border-radius:12px;
+    padding:18px; margin:16px 0;
+  }
+  .highlight{
+    background: linear-gradient(120deg, #0b1220 0%, #0f172a 100%);
+    border-left:4px solid var(--glow);
+    padding:14px; border-radius:8px; margin:12px 0;
+  }
+  .code-block{
+    background:#0b1220; color:#e2e8f0; border:1px solid var(--glow);
+    padding:14px; border-radius:10px; margin:12px 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:.95rem;
+    overflow:auto;
+  }
+  .btn{
+    background:linear-gradient(45deg, var(--glow), #06b6d4);
+    color:#05242a; font-weight:800;
+    border:1px solid rgba(255,255,255,.12);
+    padding:10px 18px; border-radius:999px; cursor:pointer; margin:6px 0;
+  }
+  .btn:disabled{ opacity:.6; cursor:default; }
+
+  /* Metrics chips */
+  .performance-metric{
+    display:inline-block; padding:8px 12px; border-radius:20px; font-weight:700;
+    background:var(--bg-2); color:var(--ink); margin:4px 6px 0 0; font-size:.9rem;
+  }
+  .metric.positive{ background:#052e2b; color:#a7f3d0; }
+  .metric.negative{ background:#2a0b0b; color:#fecaca; }
+
+  /* Quiz */
+  .quiz-container{ background:var(--bg-2); padding:16px; border-radius:12px; margin:12px 0; }
+  .quiz-question{ font-weight:800; margin-bottom:10px; }
+  .quiz-options{ display:grid; gap:10px; }
+  .quiz-option{
+    background:var(--card); border:1px solid var(--stroke); border-radius:10px;
+    padding:10px 14px; cursor:pointer;
+  }
+  .quiz-option:hover{ background:#0b1220; border-color:var(--glow); }
+  .quiz-option.correct{ background:#064e3b; border-color:var(--ok); color:#d1fae5; }
+  .quiz-option.incorrect{ background:#7f1d1d; border-color:var(--bad); color:#fee2e2; }
+
+  /* Tabs */
+  .tabs{ display:flex; background:var(--bg-2); border:1px solid var(--stroke);
+         border-radius:12px; margin:14px 0; overflow:hidden; }
+  .tab{ flex:1; text-align:center; padding:12px; cursor:pointer; font-weight:700; }
+  .tab.active{ background:linear-gradient(45deg, var(--glow), #06b6d4); color:#05242a; }
+
+  .tab-content{ display:none; background:var(--card); border:1px solid var(--stroke);
+                border-radius:12px; padding:16px; margin-top:10px; }
+  .tab-content.active{ display:block; }
+
+  /* Progress */
+  .progress-bar{ background:#1f2937; height:10px; border-radius:6px; overflow:hidden; margin:10px 0 6px; }
+  .progress-fill{ background:linear-gradient(45deg, var(--glow), #06b6d4); height:100%; width:0%; }
+
+  /* SVG “figures” wrapper */
+  .figure{ background:#0b1220; border:1px solid #23314d; border-radius:12px; padding:10px; margin:10px 0; }
+  .caption{ color:#cbd5e1; font-size:.85rem; text-align:center; margin-top:6px; }
+
+  /* Print (PDF) */
+  @media print{
+    body{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .btn, .toggle-icon{ display:none !important; }
+    .section, .tab-content, .code-block, .highlight, .tabs, .strategy-card, .interactive-demo, .quiz-container, .figure{
+      box-shadow:none!important; break-inside:avoid;
+    }
+    .section-content, .tab-content{ display:block !important; }
+    .tab{ background:transparent !important; color:var(--ink)!important; }
+    .header{ padding-bottom:18px; }
+    @page{ margin:16mm; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🚀 AI Trading Programming Guide</h1>
+    <p>From zero to tested strategies using “Vibe Coding” with LLMs (ChatGPT, Claude, etc.)</p>
+  </div>
+
+  <!-- 1. Vibe Coding -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🎯 What is “Vibe Coding” for Trading?</h2><span class="toggle-icon">−</span>
+    </div>
+    <div class="section-content">
+      <p><strong>Vibe Coding</strong> = telling an AI what you want in plain English, then steering it. You bring the idea (“when price is above the trend, stay long”). The AI writes and refines the code. You test, it tweaks. Fast feedback, tiny steps.</p>
+
+      <div class="highlight">
+        <strong>Think cooking:</strong> data = ingredients, indicators = spices, backtest = taste test, iteration = improve the recipe. No PhD required.
+      </div>
+
+      <p class="sub">A simple first vibe</p>
+      <div class="code-block">
+<pre># 20/50 moving-average crossover (shifted one day to avoid look-ahead)
+if fast_ma > slow_ma:   signal = 1   # long
+elif fast_ma < slow_ma: signal = 0   # flat
+# apply signal tomorrow, not today</pre>
+      </div>
+
+      <div class="interactive-demo">
+        <p><strong>Ask your AI:</strong></p>
+        <div class="code-block">
+<pre>“Write Python that:
+• downloads daily AAPL data
+• computes 20/50 MAs
+• creates long/flat signals shifted by 1 bar
+• subtracts 0.15% costs when the signal flips
+• plots equity vs buy-and-hold”</pre>
+        </div>
+      </div>
+
+      <!-- Figure: MA crossover (SVG) -->
+      <div class="figure">
+        <svg viewBox="0 0 720 300" width="100%" height="auto" role="img" aria-label="Price with moving averages">
+          <rect x="0" y="0" width="720" height="300" fill="#0b1220"></rect>
+          <!-- axes -->
+          <line x1="40" y1="260" x2="700" y2="260" stroke="#3b4b6b" stroke-width="1"/>
+          <line x1="40" y1="40" x2="40" y2="260" stroke="#3b4b6b" stroke-width="1"/>
+          <!-- price wavy line -->
+          <path d="M40,210 C120,240 160,160 220,180 C260,195 300,140 340,155 C380,170 420,110 460,130 C500,150 540,120 580,135 C620,150 660,110 700,125"
+                fill="none" stroke="#78a6ff" stroke-width="2"/>
+          <!-- fast MA -->
+          <path d="M40,200 C120,220 160,170 220,175 C260,185 300,155 340,160 C380,165 420,135 460,140 C500,145 540,130 580,133 C620,136 660,122 700,124"
+                fill="none" stroke="#9be2ff" stroke-width="2" stroke-dasharray="5 4"/>
+          <!-- slow MA -->
+          <path d="M40,205 C120,215 160,185 220,185 C260,188 300,170 340,170 C380,172 420,150 460,150 C500,152 540,140 580,140 C620,142 660,130 700,130"
+                fill="none" stroke="#c9d5ff" stroke-width="2" stroke-dasharray="2 6"/>
+          <!-- buy/sell markers -->
+          <circle cx="220" cy="175" r="4" fill="#10b981"/>
+          <text x="228" y="170" fill="#a7f3d0" font-size="12">BUY</text>
+          <circle cx="460" cy="150" r="4" fill="#ef4444"/>
+          <text x="468" y="145" fill="#fecaca" font-size="12">FLAT</text>
+        </svg>
+        <div class="caption">Price with 20/50 MAs and crossover points. Long when fast MA is above slow MA; flat otherwise.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Toolkit & First Strategy -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🛠️ Your Trading Toolkit + First Backtest</h2><span class="toggle-icon">−</span>
+    </div>
+    <div class="section-content">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(event,'tools')">Tools</div>
+        <div class="tab" onclick="switchTab(event,'setup')">Setup</div>
+        <div class="tab" onclick="switchTab(event,'first-code')">First code</div>
+      </div>
+
+      <div id="tools" class="tab-content active">
+        <div class="strategy-card">
+          <h4>📊 Python + pandas</h4>
+          <p>Great for loading data and calculating indicators quickly.</p>
+          <div class="code-block">pip install pandas numpy matplotlib</div>
+        </div>
+        <div class="strategy-card">
+          <h4>📈 Backtesting frameworks</h4>
+          <p><em>Optional</em> later: Backtrader, Zipline. Start simple first.</p>
+        </div>
+        <div class="strategy-card">
+          <h4>📥 Free data</h4>
+          <p><code>yfinance</code> works for learning. For serious work, consider a paid vendor with clean data.</p>
+        </div>
+      </div>
+
+      <div id="setup" class="tab-content">
+        <p class="sub">10-minute setup</p>
+        <ul style="margin-left:18px">
+          <li>Install Python (3.9+).</li>
+          <li>Run the pip commands above.</li>
+          <li>Use VS Code or Jupyter Notebook.</li>
+          <li>Import pandas without errors? You’re set.</li>
+        </ul>
+      </div>
+
+      <div id="first-code" class="tab-content">
+        <p class="sub">Your first backtest</p>
+        <div class="code-block">
+<pre>import pandas as pd, yfinance as yf
+data = yf.download("AAPL", period="3y")
+data["MA20"] = data["Close"].rolling(20).mean()
+data["MA50"] = data["Close"].rolling(50).mean()
+sig = (data["MA20"] > data["MA50"]).astype(int).shift(1).fillna(0)
+
+COST = 0.0015   # 0.15% per flip (fees+slippage)
+sw = sig.diff().abs().fillna(0)
+ret = data["Close"].pct_change().fillna(0)
+strategy = sig*ret - sw*COST
+equity = (1+strategy).cumprod()
+buyhold = (1+ret).cumprod()</pre>
+        </div>
+
+        <!-- Figure: Equity Curves (SVG) -->
+        <div class="figure">
+          <svg viewBox="0 0 720 300" width="100%" height="auto" role="img" aria-label="Equity curves">
+            <rect x="0" y="0" width="720" height="300" fill="#0b1220"></rect>
+            <line x1="40" y1="260" x2="700" y2="260" stroke="#3b4b6b" stroke-width="1"/>
+            <line x1="40" y1="40" x2="40" y2="260" stroke="#3b4b6b" stroke-width="1"/>
+            <!-- strategy equity -->
+            <path d="M40,240 L140,230 L240,220 L340,210 L440,205 L540,195 L640,180 L700,170"
+                  fill="none" stroke="#9be2ff" stroke-width="2"/>
+            <!-- buy & hold -->
+            <path d="M40,240 L140,235 L240,230 L340,225 L440,220 L540,215 L640,210 L700,205"
+                  fill="none" stroke="#c9d5ff" stroke-width="2" stroke-dasharray="5 5"/>
+          </svg>
+          <div class="caption">Equity curve (strategy) vs buy-and-hold on the same data.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Testing Methods -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🎲 Test if it’s Real: Monte-Carlo, Walk-Forward, Multi-Market & Benchmarking</h2><span class="toggle-icon">−</span>
+    </div>
+    <div class="section-content">
+      <!-- Monte Carlo -->
+      <p class="sub">Monte-Carlo (many alternate histories)</p>
+      <p>We shuffle your daily returns and rebuild the story thousands of times. If most runs end positive and the worst cases are survivable, your edge is probably real.</p>
+      <div class="figure">
+        <!-- Histogram like -->
+        <svg viewBox="0 0 720 260" width="100%" height="auto" role="img" aria-label="Monte Carlo histogram">
+          <rect x="0" y="0" width="720" height="260" fill="#0b1220"></rect>
+          <line x1="40" y1="220" x2="700" y2="220" stroke="#3b4b6b" stroke-width="1"/>
+          <!-- bars -->
+          <g transform="translate(50,0)">
+            <rect x="0" y="190" width="25" height="30" fill="#9be2ff"/>
+            <rect x="30" y="170" width="25" height="50" fill="#9be2ff"/>
+            <rect x="60" y="150" width="25" height="70" fill="#9be2ff"/>
+            <rect x="90" y="120" width="25" height="100" fill="#9be2ff"/>
+            <rect x="120" y="90" width="25" height="130" fill="#9be2ff"/>
+            <rect x="150" y="70" width="25" height="150" fill="#9be2ff"/>
+            <rect x="180" y="85" width="25" height="135" fill="#9be2ff"/>
+            <rect x="210" y="110" width="25" height="110" fill="#9be2ff"/>
+            <rect x="240" y="140" width="25" height="80" fill="#9be2ff"/>
+            <rect x="270" y="165" width="25" height="55" fill="#9be2ff"/>
+            <rect x="300" y="185" width="25" height="35" fill="#9be2ff"/>
+          </g>
+          <!-- mean line -->
+          <line x1="385" y1="40" x2="385" y2="220" stroke="#c9d5ff" stroke-dasharray="5 5"/>
+        </svg>
+        <div class="caption">Monte-Carlo: distribution of total returns across many bootstrapped runs.</div>
+      </div>
+      <div class="strategy-card">
+        <strong>Read it like this:</strong>
+        <ul style="margin-left:18px">
+          <li>Wide spread = more uncertainty. Narrow = more dependable.</li>
+          <li>Big left tail (ugly worst cases)? Decrease position size.</li>
+          <li>Win-rate of simulations &gt; 60% is a healthy sign.</li>
+        </ul>
+      </div>
+
+      <!-- Walk forward -->
+      <p class="sub" style="margin-top:14px">Walk-Forward (time-travel without cheating)</p>
+      <p>Tune on the past, test on the next chunk you haven’t seen. Move forward and repeat. You want “mostly okay” across chunks, not perfection in one year.</p>
+      <div class="figure">
+        <svg viewBox="0 0 720 260" width="100%" height="auto" role="img" aria-label="Walk-forward bars">
+          <rect x="0" y="0" width="720" height="260" fill="#0b1220"></rect>
+          <line x1="40" y1="220" x2="700" y2="220" stroke="#3b4b6b" stroke-width="1"/>
+          <g transform="translate(60,0)">
+            <rect x="0" y="160" width="80" height="60" fill="#9be2ff"/>
+            <rect x="110" y="130" width="80" height="90" fill="#9be2ff"/>
+            <rect x="220" y="180" width="80" height="40" fill="#9be2ff"/>
+            <rect x="330" y="120" width="80" height="100" fill="#9be2ff"/>
+            <rect x="440" y="150" width="80" height="70" fill="#9be2ff"/>
+          </g>
+        </svg>
+        <div class="caption">Walk-forward: out-of-sample returns by time segment.</div>
+      </div>
+
+      <!-- Multi-market -->
+      <p class="sub" style="margin-top:14px">Multi-Market (not just one ticker)</p>
+      <p>Try the same rules on a small basket: a few stocks, one crypto, one currency, maybe gold. If it only works on a single name, it may be curve-fit.</p>
+      <div class="figure">
+        <svg viewBox="0 0 720 260" width="100%" height="auto" role="img" aria-label="Multi market bars">
+          <rect x="0" y="0" width="720" height="260" fill="#0b1220"></rect>
+          <line x1="40" y1="220" x2="700" y2="220" stroke="#3b4b6b" stroke-width="1"/>
+          <g transform="translate(60,0)">
+            <rect x="0" y="150" width="60" height="70" fill="#9be2ff"></rect><text x="5" y="240" fill="#cbd5e1" font-size="12">AAPL</text>
+            <rect x="80" y="140" width="60" height="80" fill="#9be2ff"></rect><text x="85" y="240" fill="#cbd5e1" font-size="12">MSFT</text>
+            <rect x="160" y="100" width="60" height="120" fill="#9be2ff"></rect><text x="165" y="240" fill="#cbd5e1" font-size="12">TSLA</text>
+            <rect x="240" y="160" width="60" height="60" fill="#9be2ff"></rect><text x="247" y="240" fill="#cbd5e1" font-size="12">SPY</text>
+            <rect x="320" y="185" width="60" height="35" fill="#9be2ff"></rect><text x="327" y="240" fill="#cbd5e1" font-size="12">EURUSD</text>
+            <rect x="400" y="80" width="60" height="140" fill="#9be2ff"></rect><text x="410" y="240" fill="#cbd5e1" font-size="12">BTC</text>
+            <rect x="480" y="95" width="60" height="125" fill="#9be2ff"></rect><text x="492" y="240" fill="#cbd5e1" font-size="12">ETH</text>
+            <rect x="560" y="170" width="60" height="50" fill="#9be2ff"></rect><text x="570" y="240" fill="#cbd5e1" font-size="12">GOLD</text>
+          </g>
+        </svg>
+        <div class="caption">Same rules across markets. Consistency &gt; isolated wins.</div>
+      </div>
+
+      <!-- Benchmark -->
+      <p class="sub" style="margin-top:14px">Benchmarking (how good is “good”?)</p>
+      <p>Compare to simple alternatives. If a cheap index fund beats you on return or on risk-adjusted return, keep iterating.</p>
+
+      <div class="strategy-card">
+        <div class="performance-metric">Annual Return (ex.): 12.5%</div>
+        <div class="performance-metric">Volatility (ex.): 18.3%</div>
+        <div class="performance-metric">Max Drawdown (ex.): 9.2%</div>
+        <div class="performance-metric metric positive">Sharpe (ex.): 0.68</div>
+      </div>
+
+      <div class="figure">
+        <svg viewBox="0 0 720 260" width="100%" height="auto" role="img" aria-label="Sharpe comparison">
+          <rect x="0" y="0" width="720" height="260" fill="#0b1220"></rect>
+          <line x1="60" y1="220" x2="660" y2="220" stroke="#3b4b6b" stroke-width="1"/>
+          <rect x="130" y="120" width="120" height="100" fill="#9be2ff"></rect>
+          <text x="165" y="240" fill="#cbd5e1" font-size="12">Your Strat</text>
+          <rect x="420" y="150" width="120" height="70" fill="#c9d5ff"></rect>
+          <text x="460" y="240" fill="#cbd5e1" font-size="12">S&amp;P 500</text>
+        </svg>
+        <div class="caption">Sharpe ratio: return per unit of volatility. Higher is better.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Advanced Vibes -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🤖 Advanced Vibe Coding</h2><span class="toggle-icon">−</span>
+    </div>
+    <div class="section-content">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(event,'ml-vibe')">ML vibes</div>
+        <div class="tab" onclick="switchTab(event,'regime-vibe')">Regime vibes</div>
+        <div class="tab" onclick="switchTab(event,'sentiment-vibe')">Sentiment vibes</div>
+      </div>
+
+      <div id="ml-vibe" class="tab-content active">
+        <p><strong>Plain idea:</strong> turn signals (RSI, MAs, volume spikes) into a small feature set; let a model pick combinations you didn’t think of.</p>
+        <div class="code-block">
+<pre># Ask your AI:
+“Create a RandomForestClassifier that predicts tomorrow’s up/down using:
+• rsi_14, ma20>ma50 flag, day-of-week, 20d volatility
+Use walk-forward cross-validation and output precision/recall.”</pre>
+        </div>
+      </div>
+
+      <div id="regime-vibe" class="tab-content">
+        <p><strong>Plain idea:</strong> detect market “moods” (trending, ranging, volatile) and switch playbooks.</p>
+        <div class="code-block">
+<pre># Ask your AI:
+“Write a function that labels regime by combining rolling return/volatility.
+Return TRENDING, RANGING, or VOLATILE and pick strategies accordingly.”</pre>
+        </div>
+      </div>
+
+      <div id="sentiment-vibe" class="tab-content">
+        <p><strong>Plain idea:</strong> blend simple fear/greed signals (e.g., VIX level) with headline sentiment as a small tilt — not a sole trigger.</p>
+        <div class="code-block">
+<pre># Ask your AI:
+“Fetch ^VIX and compute a 10/20 MA cross for ‘fear rising/declining’.
+Combine with a news sentiment score to adjust position size ±.”</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Pitfalls & Checklist -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>⚠️ Common Pitfalls (and quick fixes)</h2><span class="toggle-icon">−</span>
+    </div>
+    <div class="section-content">
+      <div class="strategy-card">
+        <h4>🚨 Overfitting</h4>
+        <p><strong>Problem:</strong> too many knobs, perfect backtest, awful live.</p>
+        <p><strong>Fix:</strong> keep it simple; if you can’t explain it in 2 sentences, trim it. Rough rule: ≤ 1 tunable parameter per ~100 data points.</p>
+      </div>
+
+      <div class="strategy-card">
+        <h4>⏳ Look-ahead bias</h4>
+        <p><strong>Problem:</strong> using tomorrow’s info today (sneaky bugs).</p>
+        <p><strong>Fix:</strong> always shift signals by one bar before applying.</p>
+        <div class="code-block"><pre># WRONG (uses today's data for today's trade)
+sig = (close > ma).astype(int)
+
+# RIGHT (trade tomorrow on today's info)
+sig = (close > ma).astype(int).shift(1).fillna(0)</pre></div>
+      </div>
+
+      <div class="strategy-card">
+        <h4>💸 Ignoring costs</h4>
+        <p><strong>Problem:</strong> fees/slippage turn wins into losses.</p>
+        <p><strong>Fix:</strong> subtract a cost whenever the signal flips.</p>
+      </div>
+
+      <p class="sub">Mini-checklist before you risk $1</p>
+      <ul style="margin-left:18px">
+        <li>Beats buy-and-hold on return <em>or</em> on risk-adjusted return (Sharpe).</li>
+        <li>Monte-Carlo: most scenarios finish positive; drawdowns acceptable.</li>
+        <li>Walk-forward: most out-of-sample chunks are positive.</li>
+        <li>Multi-market: works across several assets, not just one.</li>
+        <li>Costs included; no look-ahead; code reviewed.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 6. Action Plan -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🎯 30-Day Action Plan</h2><span class="toggle-icon">−</span>
+    </div>
+    <div class="section-content">
+      <div class="progress-bar"><div id="progress" class="progress-fill"></div></div>
+      <p style="text-align:center">Progress: <span id="progress-text">0%</span></p>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(event,'week1')">Week 1</div>
+        <div class="tab" onclick="switchTab(event,'week2')">Week 2</div>
+        <div class="tab" onclick="switchTab(event,'week3')">Week 3</div>
+        <div class="tab" onclick="switchTab(event,'week4')">Week 4</div>
+      </div>
+
+      <div id="week1" class="tab-content active">
+        <h4>🏗️ Foundations</h4>
+        <ul style="margin-left:18px">
+          <li>Install tools; pull one ticker; compute 20/50 MAs.</li>
+          <li>Create shifted signals; include trading costs.</li>
+          <li>Plot price + MAs and equity curve.</li>
+        </ul>
+        <button class="btn" onclick="markCompleted(this,1)">Mark Completed</button>
+      </div>
+
+      <div id="week2" class="tab-content">
+        <h4>🔬 Validation</h4>
+        <ul style="margin-left:18px">
+          <li>Run 1,000-run Monte-Carlo; inspect worst cases.</li>
+          <li>Do walk-forward (tune → next chunk → repeat).</li>
+        </ul>
+        <button class="btn" onclick="markCompleted(this,2)">Mark Completed</button>
+      </div>
+
+      <div id="week3" class="tab-content">
+        <h4>🌍 Breadth</h4>
+        <ul style="margin-left:18px">
+          <li>Test ~10 tickers across sectors + 1 crypto + 1 FX.</li>
+          <li>Record return, volatility, Sharpe, max drawdown.</li>
+        </ul>
+        <button class="btn" onclick="markCompleted(this,3)">Mark Completed</button>
+      </div>
+
+      <div id="week4" class="tab-content">
+        <h4>🚀 Polish & Paper Trade</h4>
+        <ul style="margin-left:18px">
+          <li>Write a 1-page spec: idea, rules, risks, tests, results.</li>
+          <li>Paper trade a week; then start tiny and scale slowly.</li>
+        </ul>
+        <button class="btn" onclick="markCompleted(this,4)">Mark Completed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Resources -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>📚 Resources & Next Steps</h2><span class="toggle-icon">−</span>
+    </div>
+    <div class="section-content">
+      <div class="strategy-card">
+        <h4>Learn</h4>
+        <ul style="margin-left:18px">
+          <li><em>Quantitative Trading</em> — E. Chan</li>
+          <li>Coursera: “Machine Learning for Trading”</li>
+          <li>Community: r/algotrading</li>
+        </ul>
+      </div>
+      <div class="strategy-card">
+        <h4>Tools to explore next</h4>
+        <ul style="margin-left:18px">
+          <li>Backtesting: Backtrader</li>
+          <li>Portfolio: PyPortfolioOpt</li>
+          <li>Broker APIs: Interactive Brokers</li>
+        </ul>
+      </div>
+      <div class="highlight">
+        <strong>Final thought:</strong> simple + tested beats fancy + fragile. Let data, not vibes alone, make the final call. Happy vibe coding! ✨
+      </div>
+      <p style="color:#cbd5e1; font-size:.9rem; margin-top:8px"><em>Educational only — not financial advice.</em></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Keep everything expanded by default; still allow toggling on screen
+  function toggleSection(header){
+    const content = header.nextElementSibling;
+    const icon = header.querySelector('.toggle-icon');
+    const open = content.style.display !== 'none';
+    if(open){ content.style.display = 'none'; icon.textContent = '+'; }
+    else { content.style.display = 'block'; icon.textContent = '−'; }
+  }
+
+  function switchTab(e,id){
+    const wrap = e.target.closest('.section-content');
+    wrap.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    e.target.classList.add('active');
+    wrap.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+    wrap.querySelector('#'+id).classList.add('active');
+  }
+
+  // Progress mini-tracker
+  let completed=0, total=4;
+  function markCompleted(btn, step){
+    if(btn.disabled) return;
+    completed = Math.min(total, completed+1);
+    const pct = Math.round(100*completed/total);
+    document.getElementById('progress').style.width = pct+'%';
+    document.getElementById('progress-text').textContent = pct+'%';
+    btn.disabled = true; btn.textContent = 'Completed ✅';
+    btn.style.background = '#48bb78';
+  }
+
+  // Default: open the first section content on load (already open in markup)
+</script>
+</body>
+</html>
